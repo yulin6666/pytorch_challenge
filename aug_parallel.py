@@ -104,10 +104,6 @@ def load_checkpoint(filepath, model):
     if train_on_gpu:
         model = model.to('cuda')
 
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-        print(f'Training on {torch.cuda.device_count} gpus.')
-
     model.cat_to_name = checkpoint['cat_to_name']
     model.class_to_idx = checkpoint['class_to_idx']
     model.idx_to_name = checkpoint['idx_to_name']
@@ -131,6 +127,10 @@ model, optimizer = load_checkpoint(
 summary(model, input_size=(3, 224, 224), batch_size=batch_size)
 
 print(f'Model classifier: {model.classifier}')
+
+if torch.cuda.device_count() > 1:
+    model = nn.DataParallel(model)
+    print(f'Training on {torch.cuda.device_count} gpus.')
 
 for param in model.parameters():
     if param.requires_grad:
