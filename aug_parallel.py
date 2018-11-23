@@ -81,7 +81,10 @@ idx_to_name = {idx: cat_to_name[category]
                for category, idx in data['train'].class_to_idx.items()}
 
 model = models.vgg16(pretrained=True)
-model.classifier[6]
+
+# Turn off training
+for param in model.parameters():
+    param.requires_grad = False
 
 n_inputs = model.classifier[6].in_features
 n_classes = len(dataloaders['train'].dataset.classes)
@@ -97,6 +100,16 @@ class ParallelClassifier(nn.Module):
     def forward(self, x):
         x = self.fc(x)
         return x
+
+
+model.classifier[6] = ParallelClassifier(n_inputs, n_classes)
+print(f'Model classifier: {model.classifier}')
+summary(model, input_size=(3, 224, 224), batch_size=batch_size)
+
+print('Trainable weights:')
+for param in model.parameters():
+    if param.requires_grad:
+        print(param.shape)
 
 
 def load_checkpoint(filepath, model):
@@ -131,17 +144,6 @@ def load_checkpoint(filepath, model):
     print(f'Model has been trained for {model.epochs} epochs.')
 
     return model, optimizer
-
-
-model, optimizer = load_checkpoint(
-    'vgg16.pth', model)
-summary(model, input_size=(3, 224, 224), batch_size=batch_size)
-
-print(f'Model classifier: {model.classifier}')
-
-for param in model.parameters():
-    if param.requires_grad:
-        print(param.shape)
 
 
 def train(model, criterion, optimizer, train_loader, valid_loader, save_file_name,
@@ -269,6 +271,7 @@ def train(model, criterion, optimizer, train_loader, valid_loader, save_file_nam
 
 
 criterion = nn.CrossEntropyLoss()
+optimizer = optim.Adam(model.parameters())
 train(model, criterion, optimizer,
       dataloaders['train'], dataloaders['val'], max_epochs_stop=10,
       save_file_name='parallel.pt', n_epochs=50)
