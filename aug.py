@@ -88,7 +88,12 @@ for param in model.parameters():
 
 n_inputs = model.classifier[6].in_features
 n_classes = len(dataloaders['train'].dataset.classes)
-model.classifier[6] = nn.Linear(n_inputs, n_classes)
+model.classifier[6] = nn.Sequential(
+    nn.Linear(n_inputs, 1024),
+    nn.ReLU(),
+    nn.Dropout(0.4),
+    nn.Linear(1024, n_classes)
+)
 
 if train_on_gpu:
     model = model.to('cuda')
