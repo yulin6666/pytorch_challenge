@@ -108,10 +108,6 @@ def load_checkpoint(filepath, model):
     if train_on_gpu:
         model = model.to('cuda')
 
-    if torch.cuda.device_count() > 1:
-        model = nn.DataParallel(model)
-        print(f'Training on {torch.cuda.device_count} gpus.')
-
     optimizer = optim.Adam(model.parameters())
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 
@@ -263,7 +259,7 @@ def train(model, criterion, optimizer, train_loader, valid_loader, save_file_nam
 criterion = nn.CrossEntropyLoss()
 train(model, criterion, optimizer,
       dataloaders['train'], dataloaders['val'], max_epochs_stop=10,
-      save_file_name='aug-parallel.pt', n_epochs=50)
+      save_file_name='aug.pt', n_epochs=50)
 
 
 def save_checkpoint(model, optimizer, path, save_cpu=False):
@@ -286,5 +282,5 @@ def save_checkpoint(model, optimizer, path, save_cpu=False):
 
 save_checkpoint(model, optimizer, 'vgg16-aug.pth')
 model, optimizer = load_checkpoint(
-    'vgg16-aug-parallel.pth', models.vgg16(pretrained=True))
+    'vgg16-aug.pth', models.vgg16(pretrained=True))
 print(model)
