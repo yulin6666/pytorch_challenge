@@ -55,7 +55,7 @@ image_transforms = {
     ])
 }
 
-batch_size = 64
+batch_size = 32
 
 # Datasets
 data = {'train': datasets.ImageFolder(root=train_dir,

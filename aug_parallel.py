@@ -55,7 +55,7 @@ image_transforms = {
     ])
 }
 
-batch_size = 64
+batch_size = 32
 
 # Datasets
 data = {'train': datasets.ImageFolder(root=train_dir,
@@ -86,6 +86,9 @@ model = models.vgg16(pretrained=True)
 for param in model.parameters():
     param.requires_grad = False
 
+if train_on_gpu:     
+    model = model.to('cuda')
+
 n_inputs = model.classifier[6].in_features
 n_classes = len(dataloaders['train'].dataset.classes)
 
@@ -104,7 +107,7 @@ class ParallelClassifier(nn.Module):
 
 model.classifier[6] = nn.DataParallel(nn.Linear(n_inputs, n_classes))
 print(f'Model classifier: {model.classifier}')
-summary(model, input_size=(3, 224, 224), batch_size=batch_size)
+# summary(model, input_size=(3, 224, 224), batch_size=batch_size)
 
 print('Trainable weights:')
 for param in model.parameters():
