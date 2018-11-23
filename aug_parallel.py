@@ -97,10 +97,6 @@ def load_checkpoint(filepath, model):
 
     # Extract classifier
     model.classifier = checkpoint['classifier']
-    model.cat_to_name = checkpoint['cat_to_name']
-    model.class_to_idx = checkpoint['class_to_idx']
-    model.idx_to_name = checkpoint['idx_to_name']
-    model.epochs = checkpoint['epochs']
 
     # Load in the state dict
     model.load_state_dict(checkpoint['state_dict'])
@@ -111,6 +107,11 @@ def load_checkpoint(filepath, model):
     if torch.cuda.device_count() > 1:
         model = nn.DataParallel(model)
         print(f'Training on {torch.cuda.device_count} gpus.')
+
+    model.cat_to_name = checkpoint['cat_to_name']
+    model.class_to_idx = checkpoint['class_to_idx']
+    model.idx_to_name = checkpoint['idx_to_name']
+    model.epochs = checkpoint['epochs']
 
     optimizer = optim.Adam(model.parameters())
     optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
