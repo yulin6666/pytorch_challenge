@@ -130,7 +130,7 @@ print(f'Model classifier: {model.classifier}')
 
 if torch.cuda.device_count() > 1:
     model = nn.DataParallel(model)
-    print(f'Training on {torch.cuda.device_count} gpus.')
+    print(f'Training on {torch.cuda.device_count()} gpus.')
 
 for param in model.parameters():
     if param.requires_grad:

@@ -121,8 +121,8 @@ def load_checkpoint(filepath, model):
     return model, optimizer
 
 
-model, optimizer = load_checkpoint(
-    'vgg16.pth', model)
+# odel, optimizer = load_checkpoint(
+#     'vgg16.pth', model)
 summary(model, input_size=(3, 224, 224), batch_size=batch_size)
 
 print(f'Model classifier: {model.classifier}')
@@ -132,9 +132,11 @@ for param in model.parameters():
         print(param.shape)
 
 
-def train(model, criterion, optimizer, train_loader, valid_loader, save_file_name,
+def train(model, criterion, train_loader, valid_loader, save_file_name,
           max_epochs_stop=3, n_epochs=20):
 
+    optimizer = optim.Adam(model.parameters())
+    model.optimizer = optimizer
     # Early stopping details
     epochs_no_improve = 0
     valid_loss_min = np.Inf
@@ -257,12 +259,12 @@ def train(model, criterion, optimizer, train_loader, valid_loader, save_file_nam
 
 
 criterion = nn.CrossEntropyLoss()
-train(model, criterion, optimizer,
+train(model, criterion,
       dataloaders['train'], dataloaders['val'], max_epochs_stop=10,
-      save_file_name='aug.pt', n_epochs=50)
+      save_file_name='aug-scratch.pt', n_epochs=50)
 
 
-def save_checkpoint(model, optimizer, path, save_cpu=False):
+def save_checkpoint(model, path, save_cpu=False):
     if save_cpu:
         model = model.to('cpu')
         path = path.split('.')[0] + '-cpu.pth'
@@ -274,13 +276,13 @@ def save_checkpoint(model, optimizer, path, save_cpu=False):
         'epochs': model.epochs,
         'classifier': model.classifier,
         'state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict()
+        'optimizer_state_dict': model.optimizer.state_dict()
     }
 
     torch.save(checkpoint, path)
 
 
-save_checkpoint(model, optimizer, 'vgg16-aug.pth')
+save_checkpoint(model, 'vgg16-aug-scratch.pth')
 model, optimizer = load_checkpoint(
-    'vgg16-aug.pth', models.vgg16(pretrained=True))
+    'vgg16-aug-scratch.pth', models.vgg16(pretrained=True))
 print(model)
