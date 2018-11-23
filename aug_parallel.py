@@ -102,7 +102,7 @@ class ParallelClassifier(nn.Module):
         return x
 
 
-model.classifier[6] = ParallelClassifier(n_inputs, n_classes)
+model.classifier[6] = nn.DataParallel(nn.Linear(n_inputs, n_classes))
 print(f'Model classifier: {model.classifier}')
 summary(model, input_size=(3, 224, 224), batch_size=batch_size)
 
