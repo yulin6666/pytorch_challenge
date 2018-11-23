@@ -83,8 +83,15 @@ idx_to_name = {idx: cat_to_name[category]
 model = models.vgg16(pretrained=True)
 model.classifier[6]
 
+for param in model.parameters():
+    param.requires_grad = False
+
 n_inputs = model.classifier[6].in_features
 n_classes = len(dataloaders['train'].dataset.classes)
+model.classifier[6] = nn.Linear(n_inputs, n_classes)
+
+if train_on_gpu:
+    model = model.to('cuda')
 
 
 def load_checkpoint(filepath, model):
